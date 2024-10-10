@@ -1,6 +1,6 @@
-import { db } from "./backend/firebase.js";
+import { db } from "./firebase.js";
 import Cron from "https://deno.land/x/croner@5.6.4/src/croner.js";
-import { assembleBot } from "./backend/assemble-bot.ts";
+import { assembleBot } from "./assemble-bot.ts";
 import {
   collection,
   getDocs,
@@ -37,20 +37,18 @@ async function getAllFriends(): Promise<TmyFriend[]> {
   return listOfFriends;
 }
 
-function setTargetDate():string{
-  const today:Date = new Date();
-  const twoDaysFromNow:Date = new Date(today);
+function setTargetDate(): string {
+  const today: Date = new Date();
+  const twoDaysFromNow: Date = new Date(today);
   twoDaysFromNow.setDate(today.getDate() + 2);
-  return twoDaysFromNow
-    .toISOString()
-    .slice(5, 10);
-
+  const targetDate = twoDaysFromNow.toISOString().slice(5, 10);
+  console.log("Target Date:", targetDate); 
+  return targetDate;
 }
 
-async function organizeFriendsBirthdays(
-  targetDate: string
-): Promise<TupdatedFriend[]> {
+async function organizeFriendsBirthdays(targetDate: string): Promise<TupdatedFriend[]> {
   const friends = await getAllFriends();
+  
   const updatedListOfFriends = friends.map((friend) => {
     const birthdayMonthAndDate = friend.birthDate.slice(5, 10);
     const birthDayYear = friend.birthDate.slice(0, 4);
@@ -62,17 +60,17 @@ async function organizeFriendsBirthdays(
     };
   });
 
-  return updatedListOfFriends.filter(
+  
+  const filteredFriends = updatedListOfFriends.filter(
     (person) => person.birthMonthDate === targetDate
   );
+  return filteredFriends;
 }
 
 
 
 async function wakeUpBot() {
-  const friendsAboutToHaveBirthday = await organizeFriendsBirthdays(
-    setTargetDate()
-  );
+  const friendsAboutToHaveBirthday = await organizeFriendsBirthdays(setTargetDate());
 
   const friendsNameList = friendsAboutToHaveBirthday.map(
     (friends) => friends.name
