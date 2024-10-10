@@ -1,0 +1,11 @@
+# Environment variable files
+.env
+.env.local
+
+# Deno-specific files
+/.deno/
+deno.lock
+
+# Firebase functions
+/functions/node_modules/
+node_modules
