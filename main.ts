@@ -1,6 +1,7 @@
 import { db } from "./firebase.js";
 import Cron from "https://deno.land/x/croner@5.6.4/src/croner.js";
-import { assembleBot } from "./assemble-bot.ts";
+import { Bot } from "https://deno.land/x/grammy@v1.30.0/mod.ts";
+import { config } from "https://deno.land/x/dotenv/mod.ts";
 import {
   collection,
   getDocs,
@@ -19,7 +20,11 @@ interface TupdatedFriend {
   age: number;
 }
 
-const { bot, chatID } = assembleBot();
+const env = config();
+const TOKEN = env.BOTTOKEN;
+if (!TOKEN) throw new Error("Något har hänt med bot-token, fråga Botfather");
+const chatID: string = env.CHATID;
+const bot = new Bot(TOKEN);
 bot.start();
 
 async function getAllFriends(): Promise<TmyFriend[] | null> {
@@ -96,8 +101,5 @@ async function wakeUpBot(): Promise<void> {
 
   await bot.api.sendMessage(chatID, message);
 }
-setInterval(() => {
-  wakeUpBot()
-}, 10000);
-wakeUpBot();
+
 const _cronJob = new Cron("0 11 * * *", wakeUpBot);
