@@ -7,7 +7,6 @@ export function assembleBot() {
   if (!TOKEN) throw new Error("Något har hänt med bot-token, fråga Botfather");
   const chatID: string = env.CHATID;
   const bot = new Bot(TOKEN);
-  
 
-  return {bot, chatID}
+  return { bot, chatID };
 }
