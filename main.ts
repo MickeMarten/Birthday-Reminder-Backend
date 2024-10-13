@@ -2,8 +2,7 @@ import { db } from "./firebase.js";
 import { config } from "https://deno.land/x/dotenv/mod.ts";
 import Cron from "https://deno.land/x/croner@5.6.4/src/croner.js";
 import { webhookCallback } from "https://deno.land/x/grammy@v1.30.0/mod.ts";
-import { Bot } from "https://deno.land/x/grammy@v1.30.0/mod.ts";
-
+import bot from "./assemble-bot.ts"
 import { TmyFriend, TupdatedFriend } from "./interfaces.ts";
 import {
   collection,
@@ -14,14 +13,6 @@ import {
 
 
 const env = config(); 
-
-const TOKEN = env.BOTTOKEN;
-console.log('tokej',TOKEN);
-if (!TOKEN) throw new Error("Något har hänt med bot-token, fråga Botfather");
-
-const bot = new Bot(TOKEN);
-
-bot.command("start", (ctx) => ctx.reply("Bot is awake"));
 
 
 async function getAllFriends(): Promise<TmyFriend[] | null> {
@@ -86,7 +77,7 @@ async function organizeFriendsBirthdays(
 
 async function wakeUpBot(): Promise<void> {
   const chatID: string = env.CHATID;
-  console.log("Chat ID:", chatID);
+  console.log("Chat ID:", chatID); 
 
   if (!chatID) {
       throw new Error("CHATID is not defined!");

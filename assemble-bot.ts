@@ -1,4 +1,5 @@
-/* import { config } from "https://deno.land/x/dotenv/mod.ts";
+import { Bot } from "https://deno.land/x/grammy@v1.30.0/mod.ts";
+import { config } from "https://deno.land/x/dotenv/mod.ts";
 
 const env = config();
 const TOKEN = env.BOTTOKEN;
@@ -9,4 +10,4 @@ const bot = new Bot(TOKEN);
 
 bot.command("start", (ctx) => ctx.reply("Bot is awake"));
 
-export default bot;  */
+export default bot; 
