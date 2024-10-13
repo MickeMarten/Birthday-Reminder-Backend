@@ -13,22 +13,7 @@ import {
 
 
 const env = config(); 
-const handleUpdate = webhookCallback(bot, "std/http");
 
-Deno.serve(async (req) => {
-  if (req.method === "POST") {
-    const url = new URL(req.url);
-
-    if (url.pathname.slice(1) === bot.token) {
-      try {
-        return await handleUpdate(req);
-      } catch (err) {
-        console.error("Fel vid hantering av uppdatering:", err);
-      }
-    }
-  }
-  return new Response("Webhook hanterar bara POST-förfrågningar", { status: 404 });
-});
 
 async function getAllFriends(): Promise<TmyFriend[] | null> {
   try {
@@ -112,5 +97,5 @@ async function wakeUpBot(): Promise<void> {
 
   await bot.api.sendMessage(chatID, message);
 }
-
+wakeUpBot()
 const _cronJob = new Cron("0 11 * * *", wakeUpBot); 
