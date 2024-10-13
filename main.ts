@@ -1,31 +1,34 @@
 import { db } from "./firebase.js";
-import Cron from "https://deno.land/x/croner@5.6.4/src/croner.js";
-import { Bot } from "https://deno.land/x/grammy@v1.30.0/mod.ts";
 import { config } from "https://deno.land/x/dotenv/mod.ts";
+import Cron from "https://deno.land/x/croner@5.6.4/src/croner.js";
+import { webhookCallback } from "https://deno.land/x/grammy@v1.30.0/mod.ts";
+import bot from "./assemble-bot.ts"
+import { TmyFriend, TupdatedFriend } from "./interfaces.ts";
 import {
   collection,
   getDocs,
   QuerySnapshot,
 } from "https://www.gstatic.com/firebasejs/9.8.1/firebase-firestore.js";
 
-interface TmyFriend {
-  name: string;
-  birthDate: string;
-  ageAtUseage: string;
-}
-interface TupdatedFriend {
-  name: string;
-  birthYear: string;
-  birthMonthDate: string;
-  age: number;
-}
 
-const env = config();
-const TOKEN = env.BOTTOKEN;
-if (!TOKEN) throw new Error("Något har hänt med bot-token, fråga Botfather");
-const chatID: string = env.CHATID;
-const bot = new Bot(TOKEN);
-bot.start();
+
+const env = config(); 
+const handleUpdate = webhookCallback(bot, "std/http");
+
+Deno.serve(async (req) => {
+  if (req.method === "POST") {
+    const url = new URL(req.url);
+
+    if (url.pathname.slice(1) === bot.token) {
+      try {
+        return await handleUpdate(req);
+      } catch (err) {
+        console.error("Fel vid hantering av uppdatering:", err);
+      }
+    }
+  }
+  return new Response("Webhook hanterar bara POST-förfrågningar", { status: 404 });
+});
 
 async function getAllFriends(): Promise<TmyFriend[] | null> {
   try {
@@ -71,7 +74,7 @@ async function organizeFriendsBirthdays(
     const birthDayYear: string = friend.birthDate.slice(0, 4);
     const fullBirthDate: Date = new Date(friend.birthDate);
     const today: Date = new Date();
-    const age: number = fullBirthDate.getFullYear() - today.getFullYear();
+    const age: number = today.getFullYear() - fullBirthDate.getFullYear();
 
     return {
       name: friend.name,
@@ -88,18 +91,26 @@ async function organizeFriendsBirthdays(
 }
 
 async function wakeUpBot(): Promise<void> {
+  const chatID: string = env.CHATID;
+  console.log("Chat ID:", chatID); // Logga chatID
+
+  if (!chatID) {
+      throw new Error("CHATID is not defined!");
+  }
   const friendsAboutToHaveBirthday: TupdatedFriend[] =
     await organizeFriendsBirthdays(setTargetDate());
   const friendsNameList: string[] = friendsAboutToHaveBirthday.map(
     ({ name, age }) => `${name} ${age} år`
   );
 
-  let message: string =
+  const message: string =
     friendsNameList.length > 0
       ? `Om två dagar fyller ${friendsNameList.join(" och ")}`
       : `Ingen fyller år om två dagar =(`;
 
+  if (!chatID) throw new Error("ChatID saknas");
+
   await bot.api.sendMessage(chatID, message);
 }
 
-const _cronJob = new Cron("0 11 * * *", wakeUpBot);
+const _cronJob = new Cron("0 11 * * *", wakeUpBot); 
