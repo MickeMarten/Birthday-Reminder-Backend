@@ -1,19 +1,26 @@
 import { db } from "./firebase.js";
-import { config } from "https://deno.land/x/dotenv/mod.ts";
 import Cron from "https://deno.land/x/croner@5.6.4/src/croner.js";
-import { webhookCallback } from "https://deno.land/x/grammy@v1.30.0/mod.ts";
-import bot from "./assemble-bot.ts"
-import { TmyFriend, TupdatedFriend } from "./interfaces.ts";
+import { assembleBot } from "./assemble-bot.ts";
 import {
   collection,
   getDocs,
   QuerySnapshot,
 } from "https://www.gstatic.com/firebasejs/9.8.1/firebase-firestore.js";
 
+interface TmyFriend {
+  name: string;
+  birthDate: string;
+  ageAtUseage: string;
+}
+interface TupdatedFriend {
+  name: string;
+  birthYear: string;
+  birthMonthDate: string;
+  age: number;
+}
 
-
-const env = config(); 
-
+const { bot, chatID } = assembleBot();
+bot.start();
 
 async function getAllFriends(): Promise<TmyFriend[] | null> {
   try {
@@ -59,7 +66,7 @@ async function organizeFriendsBirthdays(
     const birthDayYear: string = friend.birthDate.slice(0, 4);
     const fullBirthDate: Date = new Date(friend.birthDate);
     const today: Date = new Date();
-    const age: number = today.getFullYear() - fullBirthDate.getFullYear();
+    const age: number = fullBirthDate.getFullYear() - today.getFullYear();
 
     return {
       name: friend.name,
@@ -76,26 +83,21 @@ async function organizeFriendsBirthdays(
 }
 
 async function wakeUpBot(): Promise<void> {
-  const chatID: string = env.CHATID;
-  console.log("Chat ID:", chatID); 
-
-  if (!chatID) {
-      throw new Error("CHATID is not defined!");
-  }
   const friendsAboutToHaveBirthday: TupdatedFriend[] =
     await organizeFriendsBirthdays(setTargetDate());
   const friendsNameList: string[] = friendsAboutToHaveBirthday.map(
     ({ name, age }) => `${name} ${age} år`
   );
 
-  const message: string =
+  let message: string =
     friendsNameList.length > 0
       ? `Om två dagar fyller ${friendsNameList.join(" och ")}`
       : `Ingen fyller år om två dagar =(`;
 
-  if (!chatID) throw new Error("ChatID saknas");
-
   await bot.api.sendMessage(chatID, message);
 }
-wakeUpBot()
-const _cronJob = new Cron("0 11 * * *", wakeUpBot); 
+/* setInterval(() => {
+  wakeUpBot()
+}, 3000);
+wakeUpBot(); */
+const _cronJob = new Cron("0 11 * * *", wakeUpBot);

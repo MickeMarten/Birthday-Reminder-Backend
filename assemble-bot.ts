@@ -1,13 +1,12 @@
-import { Bot } from "https://deno.land/x/grammy@v1.27.0/mod.ts"
+import { Bot } from "https://deno.land/x/grammy@v1.30.0/mod.ts";
 import { config } from "https://deno.land/x/dotenv/mod.ts";
 
-const env = config();
-const TOKEN = env.BOTTOKEN;
-console.log('tokem',TOKEN);
-if (!TOKEN) throw new Error("Något har hänt med bot-token, fråga Botfather");
+export function assembleBot() {
+  const env = config();
+  const TOKEN = env.BOTTOKEN;
+  if (!TOKEN) throw new Error("Något har hänt med bot-token, fråga Botfather");
+  const chatID: string = env.CHATID;
+  const bot = new Bot(TOKEN);
 
-const bot = new Bot(TOKEN);
-
-bot.command("start", (ctx) => ctx.reply("Bot is awake"));
-
-export default bot; 
+  return { bot, chatID };
+}
