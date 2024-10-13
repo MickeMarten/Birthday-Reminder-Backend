@@ -97,4 +97,4 @@ async function wakeUpBot(): Promise<void> {
   await bot.api.sendMessage(chatID, message);
 }
 
-const _cronJob = new Cron("8 22 * * *", wakeUpBot);
+const _cronJob = new Cron("0 11 * * *", wakeUpBot);
