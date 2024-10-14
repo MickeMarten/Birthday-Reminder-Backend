@@ -1,19 +1,8 @@
 import { db } from './firebase.js';
 import Cron from 'https://deno.land/x/croner@5.6.4/src/croner.js';
+import { TmyFriend, TupdatedFriend } from './interfaces.ts';
 import { assembleBot } from './assemble-bot.ts';
 import { collection, getDocs, QuerySnapshot } from 'https://www.gstatic.com/firebasejs/9.8.1/firebase-firestore.js';
-
-interface TmyFriend {
-  name: string;
-  birthDate: string;
-  ageAtUseage: string;
-}
-interface TupdatedFriend {
-  name: string;
-  birthYear: string;
-  birthMonthDate: string;
-  age: number;
-}
 
 const { bot, chatID } = assembleBot();
 bot.start();
