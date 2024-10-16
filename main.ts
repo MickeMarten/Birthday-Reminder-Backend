@@ -78,10 +78,10 @@ async function organizeFriendsBirthdays(targetDate: string): Promise<TupdatedFri
 }
 
 async function wakeUpBot(): Promise<void> {
-  console.log("chatID:", chatID); 
-  console.log("BOTTOKEN:", Deno.env.get('BOTTOKEN')); 
-
+  console.log("wakeUpBot started"); 
   const friendsAboutToHaveBirthday: TupdatedFriend[] = await organizeFriendsBirthdays(setTargetDate());
+  console.log(`Found friends: ${JSON.stringify(friendsAboutToHaveBirthday)}`); 
+  
   const friendsNameList: string[] = friendsAboutToHaveBirthday.map(({ name, age }) => `${name} ${age} år`);
 
   let message: string =
@@ -90,20 +90,17 @@ async function wakeUpBot(): Promise<void> {
       : `Ingen fyller år om två dagar =(`;
 
   try {
-    const response = await bot.api.sendMessage(chatID, message);
-    console.log("Meddelande skickades:", message, response);
+    await bot.api.sendMessage(chatID, message);
+    console.log("Meddelande skickades:", message); 
   } catch (error) {
-    console.error("Fel vid skickande av meddelande:", error);
+    console.error("Fel vid skickande av meddelande:", error); 
   }
 }
 
 
-/*  Deno.cron("sample cron", "30 15 * * *", () => {
+ Deno.cron("sample cron", "30 15 * * *", () => {
   wakeUpBot();
-});  */
+}); 
 
-setInterval(() => {
 wakeUpBot()
-  
-}, 5000);
 /* /* const _cronJob = new Cron('25 15 * * *', wakeUpBot);  */
