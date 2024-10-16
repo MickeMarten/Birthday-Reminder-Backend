@@ -78,6 +78,9 @@ async function organizeFriendsBirthdays(targetDate: string): Promise<TupdatedFri
 }
 
 async function wakeUpBot(): Promise<void> {
+  console.log("chatID:", chatID); 
+  console.log("BOTTOKEN:", Deno.env.get('BOTTOKEN')); 
+
   const friendsAboutToHaveBirthday: TupdatedFriend[] = await organizeFriendsBirthdays(setTargetDate());
   const friendsNameList: string[] = friendsAboutToHaveBirthday.map(({ name, age }) => `${name} ${age} år`);
 
@@ -86,7 +89,12 @@ async function wakeUpBot(): Promise<void> {
       ? `Om två dagar fyller ${friendsNameList.join(' och ')}`
       : `Ingen fyller år om två dagar =(`;
 
-  await bot.api.sendMessage(chatID, message);
+  try {
+    const response = await bot.api.sendMessage(chatID, message);
+    console.log("Meddelande skickades:", message, response);
+  } catch (error) {
+    console.error("Fel vid skickande av meddelande:", error);
+  }
 }
 
 wakeUpBot();

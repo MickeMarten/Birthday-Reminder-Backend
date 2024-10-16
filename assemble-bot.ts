@@ -9,6 +9,6 @@ if (!TOKEN) throw new Error('Något har hänt med bot-token, fråga Botfather');
 
 const bot = new Bot(TOKEN);
 
-await bot.api.setWebhook("https://mikaelmrten-birthdaybac-11-pchzt1711n6j.deno.dev/webhook");
+await bot.api.setWebhook("mikaelmrten-birthdaybac-11.deno.dev/webhook");
 
 export { bot, chatID };
