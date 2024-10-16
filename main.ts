@@ -89,9 +89,10 @@ async function wakeUpBot(): Promise<void> {
   await bot.api.sendMessage(chatID, message);
 }
 
+wakeUpBot();
 
-Deno.cron("sample cron", "6 15 * * *", () => {
+/* Deno.cron("sample cron", "12 15 * * *", () => {
   wakeUpBot();
 });
 
-/* const _cronJob = new Cron('50 14 * * *', wakeUpBot); */
+const _cronJob = new Cron('11 15 * * *', wakeUpBot);  */
