@@ -87,7 +87,6 @@ async function wakeUpBot(): Promise<void> {
     console.error("Fel vid skickande av meddelande:", error);
   }
 }
-wakeUpBot();
 
 Deno.cron("sample cron", "0 6 * * *", () => {
   wakeUpBot();
