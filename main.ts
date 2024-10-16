@@ -39,7 +39,7 @@ async function getAllFriends(): Promise<TmyFriend[] | null> {
 
     return listOfFriends;
   } catch (error) {
-    console.error("Db verkar ha crashat?");
+    console.error("Db verkar ha crashat?", error);
     return [];
   }
 }
@@ -53,7 +53,7 @@ function setTargetDate(): string {
 }
 
 async function organizeFriendsBirthdays(
-  targetDate: string
+  targetDate: string,
 ): Promise<TupdatedFriend[]> {
   const friends = await getAllFriends();
   if (!friends || friends.length < 1) {
@@ -77,7 +77,7 @@ async function organizeFriendsBirthdays(
   });
 
   const filteredFriends = updatedListOfFriends.filter(
-    (person) => person.birthMonthDate === targetDate
+    (person) => person.birthMonthDate === targetDate,
   );
   return filteredFriends;
 }
@@ -86,13 +86,12 @@ async function wakeUpBot(): Promise<void> {
   const friendsAboutToHaveBirthday: TupdatedFriend[] =
     await organizeFriendsBirthdays(setTargetDate());
   const friendsNameList: string[] = friendsAboutToHaveBirthday.map(
-    ({ name, age }) => `${name} ${age} år`
+    ({ name, age }) => `${name} ${age} år`,
   );
 
-  let message: string =
-    friendsNameList.length > 0
-      ? `Om två dagar fyller ${friendsNameList.join(" och ")}`
-      : `Ingen fyller år om två dagar =(`;
+  const message: string = friendsNameList.length > 0
+    ? `Om två dagar fyller ${friendsNameList.join(" och ")}`
+    : `Ingen fyller år om två dagar =(`;
 
   await bot.api.sendMessage(chatID, message);
 }
