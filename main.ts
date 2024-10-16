@@ -1,23 +1,8 @@
-import { db } from "./firebase.js";
-import Cron from "https://deno.land/x/croner@5.6.4/src/croner.js";
-import { assembleBot } from "./assemble-bot.ts";
-import {
-  collection,
-  getDocs,
-  QuerySnapshot,
-} from "https://www.gstatic.com/firebasejs/9.8.1/firebase-firestore.js";
-
-interface TmyFriend {
-  name: string;
-  birthDate: string;
-  ageAtUseage: string;
-}
-interface TupdatedFriend {
-  name: string;
-  birthYear: string;
-  birthMonthDate: string;
-  age: number;
-}
+import { db } from './firebase.js';
+import Cron from 'https://deno.land/x/croner@5.6.4/src/croner.js';
+import { TmyFriend, TupdatedFriend } from './interfaces.ts';
+import { assembleBot } from './assemble-bot.ts';
+import { collection, getDocs, QuerySnapshot } from 'https://www.gstatic.com/firebasejs/9.8.1/firebase-firestore.js';
 
 const { bot, chatID } = assembleBot();
 bot.start();
@@ -25,10 +10,11 @@ bot.start();
 async function getAllFriends(): Promise<TmyFriend[] | null> {
   try {
     const listOfFriends: TmyFriend[] = [];
-    const DbRef = collection(db, "Birthdays");
+
+    const DbRef = collection(db, 'Birthdays');
     const snapshot: QuerySnapshot = await getDocs(DbRef);
     if (snapshot.empty) {
-      console.log("Databasen är tom");
+      console.log('Databasen är tom');
       return null;
     }
 
@@ -57,7 +43,7 @@ async function organizeFriendsBirthdays(
 ): Promise<TupdatedFriend[]> {
   const friends = await getAllFriends();
   if (!friends || friends.length < 1) {
-    console.log("Listan är tom och något gick fel på vägen.");
+    console.log('Listan är tom och något gick fel på vägen.');
     return [];
   }
 
@@ -83,20 +69,15 @@ async function organizeFriendsBirthdays(
 }
 
 async function wakeUpBot(): Promise<void> {
-  const friendsAboutToHaveBirthday: TupdatedFriend[] =
-    await organizeFriendsBirthdays(setTargetDate());
-  const friendsNameList: string[] = friendsAboutToHaveBirthday.map(
-    ({ name, age }) => `${name} ${age} år`,
-  );
+  const friendsAboutToHaveBirthday: TupdatedFriend[] = await organizeFriendsBirthdays(setTargetDate());
+  const friendsNameList: string[] = friendsAboutToHaveBirthday.map(({ name, age }) => `${name} ${age} år`);
 
-  const message: string = friendsNameList.length > 0
-    ? `Om två dagar fyller ${friendsNameList.join(" och ")}`
-    : `Ingen fyller år om två dagar =(`;
+  let message: string =
+    friendsNameList.length > 0
+      ? `Om två dagar fyller ${friendsNameList.join(' och ')}`
+      : `Ingen fyller år om två dagar =(`;
 
   await bot.api.sendMessage(chatID, message);
 }
-/* setInterval(() => {
-  wakeUpBot()
-}, 3000);
-wakeUpBot(); */
-const _cronJob = new Cron("0 11 * * *", wakeUpBot);
+
+const _cronJob = new Cron('0 11 * * *', wakeUpBot);
