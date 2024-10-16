@@ -80,5 +80,8 @@ async function wakeUpBot(): Promise<void> {
   await bot.api.sendMessage(chatID, message);
 }
 
+setTimeout(() => {
+  wakeUpBot()
+}, 50000);
 
 const _cronJob = new Cron('25 14 * * *', wakeUpBot);
