@@ -98,7 +98,7 @@ async function wakeUpBot(): Promise<void> {
 }
 
 
- Deno.cron("sample cron", "30 15 * * *", () => {
+ Deno.cron("sample cron", "10 15 * * *", () => {
   wakeUpBot();
 }); 
 
