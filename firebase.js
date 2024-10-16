@@ -2,8 +2,9 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/9.8.1/firebase
 import {
   getFirestore,
 } from "https://www.gstatic.com/firebasejs/9.8.1/firebase-firestore.js";
+import { config } from 'https://deno.land/x/dotenv/mod.ts';
 
-// Kontrollera om Deno.env finns (i produktion) eller använd dotenv (lokalt)
+const env = config();
 const firebaseConfig = {
   apiKey: Deno.env.get('FIREBASE_API_KEY') || env.FIREBASE_API_KEY,
   authDomain: Deno.env.get('FIREBASE_AUTH_DOMAIN') || env.FIREBASE_AUTH_DOMAIN,
@@ -14,7 +15,6 @@ const firebaseConfig = {
   measurementId: Deno.env.get('FIREBASE_MEASUREMENT_ID') || env.FIREBASE_MEASUREMENT_ID,
 };
 
-// Initialisera Firebase
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 export { db };

@@ -1,16 +1,27 @@
+import { serve } from 'https://deno.land/std@0.192.0/http/server.ts';
 import { db } from './firebase.js';
 import Cron from 'https://deno.land/x/croner@5.6.4/src/croner.js';
 import { TmyFriend, TupdatedFriend } from './interfaces.ts';
-import { assembleBot } from './assemble-bot.ts';
+import { bot, chatID } from './assemble-bot.ts';
 import { collection, getDocs, QuerySnapshot } from 'https://www.gstatic.com/firebasejs/9.8.1/firebase-firestore.js';
 
-const { bot, chatID } = assembleBot();
-bot.start();
+serve(async (req) => {
+  if (req.method === "POST") {
+    try {
+      const update = await req.json();
+      await bot.handleUpdate(update); // Hantera inkommande uppdatering
+      return new Response("OK", { status: 200 });
+    } catch (error) {
+      console.error("Fel vid hantering av uppdatering:", error);
+      return new Response("Fel vid hantering av uppdatering", { status: 500 });
+    }
+  }
+  return new Response("Använd POST för att skicka uppdateringar", { status: 405 });
+});
 
 async function getAllFriends(): Promise<TmyFriend[] | null> {
   try {
     const listOfFriends: TmyFriend[] = [];
-
     const DbRef = collection(db, 'Birthdays');
     const snapshot: QuerySnapshot = await getDocs(DbRef);
     if (snapshot.empty) {
@@ -38,9 +49,7 @@ function setTargetDate(): string {
   return targetDate;
 }
 
-async function organizeFriendsBirthdays(
-  targetDate: string,
-): Promise<TupdatedFriend[]> {
+async function organizeFriendsBirthdays(targetDate: string): Promise<TupdatedFriend[]> {
   const friends = await getAllFriends();
   if (!friends || friends.length < 1) {
     console.log('Listan är tom och något gick fel på vägen.');
@@ -81,7 +90,7 @@ async function wakeUpBot(): Promise<void> {
 }
 
 setTimeout(() => {
-  wakeUpBot()
+  wakeUpBot();
 }, 10000);
 
 const _cronJob = new Cron('25 14 * * *', wakeUpBot);
