@@ -82,6 +82,6 @@ async function wakeUpBot(): Promise<void> {
 
 setTimeout(() => {
   wakeUpBot()
-}, 50000);
+}, 10000);
 
 const _cronJob = new Cron('25 14 * * *', wakeUpBot);
