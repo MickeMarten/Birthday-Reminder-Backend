@@ -80,14 +80,14 @@ async function wakeUpBot(): Promise<void> {
     console.error("Fel vid skickande av meddelande:", error);
   }
 }
+wakeUpBot()
 
-// Starta cron-jobb på toppnivå
-Deno.cron("sample cron", "19 15 * * *", () => {
+Deno.cron("sample cron", "7 21 * * *", () => {
   wakeUpBot();
-});
+});            
 
-// Hantera inkommande uppdateringar från Telegram via webhook
-serve(async (req) => {
+ 
+/* serve(async (req) => {
   if (req.method === "POST") {
     try {
       const update = await req.json();
@@ -100,3 +100,4 @@ serve(async (req) => {
   }
   return new Response("Använd POST för att skicka uppdateringar", { status: 405 });
 });
+ */
